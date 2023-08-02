@@ -26,7 +26,7 @@
 
 namespace Digicademy\Xmltool\Controller;
 
-use Digicademy\Xmltool\Utility\DatabaseDefaultConnectionUtility;
+use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -1065,7 +1065,6 @@ class XmlimportModuleController
 
             // import MM records using custom logic
             } elseif (is_array($this->conf['importConfiguration'][$table . '.']['MM.'])) {
-
                 // select the right MM import configuration
                 $MMconf = $this->conf['importConfiguration'][$table . '.']['MM.'];
                 $tablenamesField = $MMconf['tablenamesField'];
@@ -1130,31 +1129,70 @@ class XmlimportModuleController
                             array_key_exists('uid', $foreignRecord) &&
                             $foreignRecord['uid'] > 0
                         ) {
+                            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+                            $queryBuilder = $connection->getQueryBuilderForTable($table);
 
-                            $additionalWhere = '1 = 1';
+                            // select on the MM table using the value/column specified in the identifierField directive
+                            $stub = $queryBuilder->from($table);
+
+                            // always fetch from uid_local
+                            $stub->where(
+                                $queryBuilder->expr()->eq(
+                                    'uid_local',
+                                    $queryBuilder->createNamedParameter(
+                                        $fields['uid_local'],
+                                        PDO::PARAM_INT
+                                    )
+                                )
+                            );
 
                             // add tablenames field if set
                             if ($tablenamesField) {
-                                // @TODO: Doctrine DBAL migration
-                                $MMtableColumns = $GLOBALS['TYPO3_DB']->admin_get_fields($table);
+
+                                // Doctrine DBAL approach for $GLOBALS['TYPO3_DB']->admin_get_fields($table) ported from
+                                // https://github.com/FriendsOfTYPO3/typo3db_legacy/blob/c05177f6b34b780e1e2cefc97777bf839ca0681d/Classes/Database/DatabaseConnection.php#L1426
+                                $MMtableColumns = [];
+                                $columns_res = $connection->query("SHOW FULL COLUMNS FROM `{$table}`");
+                                if ($columns_res !== false) {
+                                    while ($fieldRow = $columns_res->fetch()) {
+                                        $MMtableColumns[$fieldRow['Field']] = $fieldRow;
+                                    }
+                                    $columns_res->free();
+                                }
+
                                 if (is_array($MMtableColumns[$tablenamesField])) {
-                                    // @TODO: Doctrine DBAL migration
-                                    $additionalWhere .= ' AND ' . $tablenamesField . ' = ' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tableNamesFieldValue, $table);
+                                    $stub->andWhere(
+                                        $queryBuilder->expr()->eq(
+                                            $tablenamesField,
+                                            $queryBuilder->createNamedParameter(
+                                                $fields[$tablenamesField],
+                                                $tableNamesFieldValue
+                                            )
+                                        )
+                                    );
                                 }
                             }
 
-                            // always fetch from uid_local
-                            $additionalWhere .= ' AND uid_local = ' . (int) $fields['uid_local'];
-
-                            // select on the MM table using the value/column specified in the identifierField directive
-                            // @TODO: Doctrine DBAL migration
-                            $existingRelations = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows('*', $table, $additionalWhere);
+                            // We might want to use the stub with its where-
+                            // clauses for follow-up query to purge existing
+                            // relations (see below). That's why we clone
+                            // an instance to fire off for the current select-
+                            // query.
+                            $selectStub = clone $stub;
+                            $existingRelations = $selectStub
+                                                    ->select('*')
+                                                    ->execute()
+                                                    ->fetchAll(PDO::FETCH_ASSOC);
 
                             // purge existing relations, but only on the first iteration
                             if ($MMconf['purgeExistingRelations'] && $index == 0) {
-                                // @TODO: Doctrine DBAL migration
-                                $GLOBALS['TYPO3_DB']->exec_DELETEquery($table, $additionalWhere);
+                                // Here we can use up the original stub.
+                                $stub = clone $stub;
+                                $stub->delete()->execute();
                                 unset($existingRelations);
+                            } else {
+                                // Otherwise just get rid of it.
+                                unset($stub);
                             }
 
                             // check if a row exists that is equal to the current field/value combination
@@ -1174,8 +1212,7 @@ class XmlimportModuleController
                                 continue;
                                 // otherwise issue an insert statement
                             } else {
-                                // @TODO: Doctrine DBAL migration
-                                $GLOBALS['TYPO3_DB']->exec_INSERTquery($table, $fields);
+                                $connection->insert($table, $fields);
                                 // and update the reference index
                                 $referenceIndex = GeneralUtility::makeInstance(ReferenceIndex::class);
                                 $referenceIndex->updateRefIndexTable($MMimportConfiguration['uidLocalTable'], $fields['uid_local']);
@@ -1309,8 +1346,8 @@ class XmlimportModuleController
                     }
                 }
             }
-
         }
+        // end foreach data as table
 
         // hook for actions after all database operations have finished
         if (count($this->hookObjectsArr) > 0) {
