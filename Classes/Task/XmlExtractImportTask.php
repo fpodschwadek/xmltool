@@ -1,11 +1,10 @@
 <?php
 
-namespace Digicademy\Xmltool\Task;
-
 /***************************************************************
  *  Copyright notice
  *
  *  Torsten Schrade <Torsten.Schrade@adwmainz.de>, Academy of Sciences and Literature | Mainz
+ *  Frodo Podschwadek <frodo.podschwadek@adwmainz.de>, Academy of Sciences and Literature | Mainz
  *
  *  All rights reserved
  *
@@ -26,6 +25,9 @@ namespace Digicademy\Xmltool\Task;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+namespace Digicademy\Xmltool\Task;
+
+use \PDO;
 use Digicademy\Xmltool\Controller\XmlimportBatchimportController;
 use Digicademy\Xmltool\Controller\XmlimportModuleController;
 use Digicademy\Xmltool\Utility\XmlExtraction;
@@ -60,15 +62,20 @@ class XmlExtractImportTask extends AbstractTask
      */
     private function performExtractJobs()
     {
-
-        // @TODO: migrate to Doctrine DBAL
-        $extractJobRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            '*',
-            'tx_xmltool_domain_model_schedulerjob',
-            'type=1 AND hidden=0 AND deleted=0',
-            '',
-            'pid,sorting ASC'
-        );
+        $table = 'tx_xmltool_domain_model_schedulerjob';
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+        $queryBuilder = $connection->getQueryBuilderForTable($table);
+        $extractJobRows = $queryBuilder->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(1, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, PDO::PARAM_INT))
+            )
+            ->orderBy('pid', 'ASC')
+            ->orderBy('sorting', 'ASC')
+            ->execute()
+            ->fetchAll(PDO::FETCH_ASSOC);
 
         if ($extractJobRows) {
 
@@ -116,14 +123,20 @@ class XmlExtractImportTask extends AbstractTask
      */
     private function performImportJobs()
     {
-        // @TODO: migrate to Doctrine DBAL
-        $importJobRows = $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-            '*',
-            'tx_xmltool_domain_model_schedulerjob',
-            'type=2 AND hidden=0 AND deleted=0',
-            '',
-            'pid,sorting ASC'
-        );
+        $table = 'tx_xmltool_domain_model_schedulerjob';
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
+        $queryBuilder = $connection->getQueryBuilderForTable($table);
+        $importJobRows = $queryBuilder->select('*')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('type', $queryBuilder->createNamedParameter(2, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, PDO::PARAM_INT))
+            )
+            ->orderBy('pid', 'ASC')
+            ->orderBy('sorting', 'ASC')
+            ->execute()
+            ->fetchAll(PDO::FETCH_ASSOC);
 
         if ($importJobRows) {
 
