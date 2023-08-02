@@ -1130,7 +1130,7 @@ class XmlimportModuleController
                             $foreignRecord['uid'] > 0
                         ) {
                             $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-                            $queryBuilder = $connection->getQueryBuilderForTable($table);
+                            $queryBuilder = $connection->createQueryBuilder();
 
                             // select on the MM table using the value/column specified in the identifierField directive
                             $stub = $queryBuilder->from($table);
