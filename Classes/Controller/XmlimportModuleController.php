@@ -414,7 +414,7 @@ class XmlimportModuleController
      * @param ServerRequestInterface $request the current request
      * @return Response the response with the content
      */
-    public function mainAction(ServerRequestInterface $request, ResponseInterface $response = NULL)
+    public function mainAction(ServerRequestInterface $request)
     {
         $GLOBALS['SOBE'] = $this;
         $this->init();
