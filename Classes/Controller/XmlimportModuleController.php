@@ -1,10 +1,9 @@
 <?php
-namespace Digicademy\Xmltool\Controller;
-
 /***************************************************************
  *  Copyright notice
  *
  *  Torsten Schrade <Torsten.Schrade@adwmainz.de>, Academy of Sciences and Literature | Mainz
+ *  Frodo Podschwadek <frodo.podschwadek@adwmainz.de>, Academy of Sciences and Literature | Mainz
  *
  *  All rights reserved
  *
@@ -25,6 +24,9 @@ namespace Digicademy\Xmltool\Controller;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+namespace Digicademy\Xmltool\Controller;
+
+use Digicademy\Xmltool\Utility\DatabaseDefaultConnectionUtility;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -1232,8 +1234,18 @@ class XmlimportModuleController
                     }
 
                     // set some internal values if the according fields exist for the current table
-                    // @TODO: Doctrine DBAL migration
-                    $fieldsInDB = $GLOBALS['TYPO3_DB']->admin_get_fields($table);
+                    //
+                    // Doctrine DBAL approach for $GLOBALS['TYPO3_DB']->admin_get_fields($table) ported from
+                    // https://github.com/FriendsOfTYPO3/typo3db_legacy/blob/c05177f6b34b780e1e2cefc97777bf839ca0681d/Classes/Database/DatabaseConnection.php#L1426
+                    $fieldsInDB = [];
+                    $columns_res = DatabaseDefaultConnectionUtility::get()->query("SHOW FULL COLUMNS FROM `{$table}`");
+                    if ($columns_res !== false) {
+                        while ($fieldRow = $columns_res->fetch()) {
+                            $fieldsInDB[$fieldRow['Field']] = $fieldRow;
+                        }
+                        $columns_res->free();
+                    }
+
                     $tstamp = time();
 
                     // last update field
