@@ -32,6 +32,7 @@ use Digicademy\Xmltool\Controller\XmlimportBatchimportController;
 use Digicademy\Xmltool\Controller\XmlimportModuleController;
 use Digicademy\Xmltool\Utility\XmlExtraction;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Scheduler\Task\AbstractTask;
 
