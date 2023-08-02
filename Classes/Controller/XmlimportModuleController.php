@@ -26,7 +26,7 @@
 
 namespace Digicademy\Xmltool\Controller;
 
-use PDO;
+use \PDO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
