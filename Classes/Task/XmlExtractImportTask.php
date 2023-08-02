@@ -64,8 +64,7 @@ class XmlExtractImportTask extends AbstractTask
     private function performExtractJobs()
     {
         $table = 'tx_xmltool_domain_model_schedulerjob';
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-        $queryBuilder = $connection->getQueryBuilderForTable($table);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $extractJobRows = $queryBuilder->select('*')
             ->from($table)
             ->where(
@@ -125,8 +124,7 @@ class XmlExtractImportTask extends AbstractTask
     private function performImportJobs()
     {
         $table = 'tx_xmltool_domain_model_schedulerjob';
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($table);
-        $queryBuilder = $connection->getQueryBuilderForTable($table);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $importJobRows = $queryBuilder->select('*')
             ->from($table)
             ->where(
