@@ -1238,7 +1238,9 @@ class XmlimportModuleController
                     // Doctrine DBAL approach for $GLOBALS['TYPO3_DB']->admin_get_fields($table) ported from
                     // https://github.com/FriendsOfTYPO3/typo3db_legacy/blob/c05177f6b34b780e1e2cefc97777bf839ca0681d/Classes/Database/DatabaseConnection.php#L1426
                     $fieldsInDB = [];
-                    $columns_res = DatabaseDefaultConnectionUtility::get()->query("SHOW FULL COLUMNS FROM `{$table}`");
+                    $columns_res = GeneralUtility::makeInstance(ConnectionPool::class)
+                                    ->getConnectionForTable($table)
+                                    ->query("SHOW FULL COLUMNS FROM `{$table}`");
                     if ($columns_res !== false) {
                         while ($fieldRow = $columns_res->fetch()) {
                             $fieldsInDB[$fieldRow['Field']] = $fieldRow;
