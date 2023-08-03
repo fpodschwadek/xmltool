@@ -1,7 +1,4 @@
 <?php
-
-namespace Digicademy\Xmltool\Utility;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -25,6 +22,7 @@ namespace Digicademy\Xmltool\Utility;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+namespace Digicademy\Xmltool\Utility;
 
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -129,14 +127,12 @@ class XmlExtraction
      */
     public function processXMLdata($xmlData, $entryNode = '', $callingAction = 'extract')
     {
-
         if (!$entryNode) {
             $entryNode = $this->pObj->conf['entryNode'];
         }
 
         // if there is data
         if ($xmlData != '') {
-
             // pre process hook before extraction
             if (count($this->pObj->hookObjectsArr) > 0) {
                 foreach ($this->pObj->hookObjectsArr as $hookObj) {
@@ -184,7 +180,6 @@ class XmlExtraction
      */
     protected function extractRecordsFromXML($xmlString, $entryNode, $configuration, $callingAction)
     {
-
         // initialize result array
         $xmlArray = array();
 
