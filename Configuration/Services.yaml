@@ -1,0 +1,13 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Digicademy\Xmltool\:
+    resource: '../Classes/*'
+
+  Digicademy\Xmltool\Command\XmlExtractImportCommand:
+      tags:
+        - name: 'console.command'
+          command: 'xmlextractimport'
