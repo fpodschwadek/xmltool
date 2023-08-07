@@ -1,4 +1,5 @@
 <?php
+
 /***************************************************************
  *  Copyright notice
  *
@@ -25,6 +26,9 @@
  ***************************************************************/
 
 namespace Digicademy\Xmltool\Command;
+
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
 use Digicademy\Xmltool\Service\XmlExtractImportService;
 use Symfony\Component\Console\Command\Command;
