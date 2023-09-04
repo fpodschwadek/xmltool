@@ -52,14 +52,13 @@ class BackendTsfe
         }
 
         if (!is_object($GLOBALS['TSFE']) && $pageId) {
-
             $uri = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\Uri::class, '/');
             $siteLanguage = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Site\Entity\SiteLanguage::class, 0, 'en_US.UTF-8', $uri, []);
 
             // builds TSFE object
             $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class,
             null, $pageId, $siteLanguage, ['id' => $pageId, 'type' => 0]);
-
+echo "-- HUHU --";
             // builds sub objects
             $GLOBALS['TSFE']->tmpl = GeneralUtility::makeInstance(ExtendedTemplateService::class);
             $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
