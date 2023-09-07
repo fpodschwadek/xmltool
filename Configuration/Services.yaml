@@ -7,7 +7,7 @@ services:
   Digicademy\Xmltool\:
     resource: '../Classes/*'
 
-  Digicademy\Xmltool\Command\XmlExtractImportCommand:
-      tags:
-        - name: 'console.command'
-          command: 'xmlextractimport'
+#  Digicademy\Xmltool\Command\XmlExtractImportCommand:
+#      tags:
+#        - name: 'console.command'
+#          command: 'xmlextractimport'
