@@ -1166,7 +1166,7 @@ class XmlimportModuleController
                                             $tablenamesField,
                                             $queryBuilder->createNamedParameter(
                                                 $fields[$tablenamesField],
-                                                $tableNamesFieldValue
+                                                PDO::PARAM_STR
                                             )
                                         )
                                     );
@@ -1188,7 +1188,7 @@ class XmlimportModuleController
                             if ($MMconf['purgeExistingRelations'] && $index == 0) {
                                 // Here we can use up the original stub.
                                 $stub = clone $stub;
-                                $stub->delete()->execute();
+                                $stub->delete($table)->execute();
                                 unset($existingRelations);
                             } else {
                                 // Otherwise just get rid of it.
