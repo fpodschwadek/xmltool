@@ -27,6 +27,13 @@
 
 namespace Digicademy\Xmltool\Command;
 
+// This isn't working so far due to the massive reliance on the TypoScript
+// Frontend Controller which can be deceived to work in the Backend but so far
+// not on the CLI.
+//
+// Not sure whether this way it will ever work, perhaps massive refactoring and
+// decoupling from TSFE is necessary.
+
 // !-- FOR ESCAPING DEV HELL ONLY --! //
 // error_reporting(E_ALL);
 // ini_set("display_errors", 1);
