@@ -58,7 +58,7 @@ class BackendTsfe
             // builds TSFE object
             $GLOBALS['TSFE'] = GeneralUtility::makeInstance(TypoScriptFrontendController::class,
             null, $pageId, $siteLanguage, ['id' => $pageId, 'type' => 0]);
-echo "-- HUHU --";
+
             // builds sub objects
             $GLOBALS['TSFE']->tmpl = GeneralUtility::makeInstance(ExtendedTemplateService::class);
             $GLOBALS['TSFE']->sys_page = GeneralUtility::makeInstance(PageRepository::class);
